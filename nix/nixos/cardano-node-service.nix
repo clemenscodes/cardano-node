@@ -334,9 +334,8 @@ in {
       };
 
       stateDirBase = mkOption {
-        type = funcToOr types.str;
+        type = types.str;
         default = "/var/lib/";
-        apply = x : if (builtins.isFunction x) then x else i: x;
         description = ''
           Base directory to store blockchain data, for each instance.
         '';
@@ -352,9 +351,8 @@ in {
       };
 
       runDirBase = mkOption {
-        type = funcToOr types.str;
+        type = types.str;
         default = "/run/";
-        apply = x : if (builtins.isFunction x) then x else i: x;
         description = ''
           Base runtime directory, for each instance.
         '';
@@ -363,7 +361,7 @@ in {
       runtimeDir = mkOption {
         type = funcToOr nullOrStr;
         default = ''${cfg.runDirBase}${suffixDir "cardano-node"}'';
-        apply = x : if builtins.isFunction x then x else if x == null then _: null else suffixDir x;
+        apply = x : if builtins.isFunction x then x else if x == null then _: null else "${cfg.runDirBase}${suffixDir x}";
         description = ''
           Runtime directory relative to ${cfg.runDirBase}, for each instance
         '';
@@ -781,8 +779,7 @@ in {
             ++ optional (cfg.ipv6HostAddr i != null) "[${cfg.ipv6HostAddr i}]:${toString (if cfg.shareIpv6port then cfg.port else cfg.port + i)}"
             ++ (cfg.additionalListenStream i)
             ++ [(cfg.socketPath i)];
-          RuntimeDirectory = lib.removePrefix cfg.runDirBase
-            (cfg.runtimeDir i);
+          RuntimeDirectory = lib.removePrefix cfg.runDirBase (cfg.runtimeDir i);
           NoDelay = "yes";
           ReusePort = "yes";
           SocketMode = "0660";
