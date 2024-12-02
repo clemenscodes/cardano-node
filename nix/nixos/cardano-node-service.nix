@@ -360,7 +360,7 @@ in {
 
       runtimeDir = mkOption {
         type = funcToOr nullOrStr;
-        default = ''${cfg.runDirBase}${suffixDir "cardano-node"}'';
+        default = i: ''${cfg.runDirBase}${suffixDir "cardano-node" i}'';
         apply = x : if builtins.isFunction x then x else if x == null then _: null else "${cfg.runDirBase}${suffixDir x}";
         description = ''
           Runtime directory relative to ${cfg.runDirBase}, for each instance
