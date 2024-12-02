@@ -7,7 +7,7 @@ with lib; with builtins;
 let
   cfg = config.services.cardano-node;
   envConfig = cfg.environments.${cfg.environment};
-  runtimeDir = i : if cfg.runtimeDir i == null then cfg.stateDir i else "${cfg.runDirBase}${cfg.runtimeDir i}";
+  runtimeDir = i : if cfg.runtimeDir i == null then cfg.stateDir i else "${cfg.runDirBase}${lib.removePrefix cfg.runDirBase (cfg.runtimeDir i)}";
   suffixDir = base: i: "${base}${optionalString (i != 0) "-${toString i}"}";
   nullOrStr = types.nullOr types.str;
   funcToOr = t: types.either t (types.functionTo t);
@@ -361,7 +361,7 @@ in {
       runtimeDir = mkOption {
         type = funcToOr nullOrStr;
         default = i: ''${cfg.runDirBase}${suffixDir "cardano-node" i}'';
-        apply = x : if builtins.isFunction x then x else if x == null then _: null else "${cfg.runDirBase}${suffixDir x}";
+        apply = x : if builtins.isFunction x then x else if x == null then _: null else "${cfg.runDirBase}${suffixDir "cardano-node" x}";
         description = ''
           Runtime directory relative to ${cfg.runDirBase}, for each instance
         '';
